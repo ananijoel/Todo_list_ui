@@ -51,13 +51,16 @@ export class TodoList {
             const item = new TodoListItem(todo)
             this.#listElement.append(item.element)
         }
-        element.querySelector("form").addEventListener("submit", e => this.onSubmit(e)); 
+        element.querySelector("form").addEventListener("submit", e => this.#onSubmit(e))
+        element.querySelectorAll(".btn-group button").forEach(button => {
+            button.addEventListener("click",e=>this.#toggleFilter(e))
+        })
     }
 
     /**
      * @param {SubmitEvent} e
      */
-    onSubmit (e){
+    #onSubmit (e){
         e.preventDefault()
         const form = e.currentTarget
         const title = new FormData(form).get("title").toString().trim()
@@ -73,6 +76,28 @@ export class TodoList {
         this.#listElement.prepend(item.element)
         form.reset()
     }
+
+    /**
+     * @param {PointerEvent} e
+     */
+    #toggleFilter(e){   
+        e.preventDefault()
+        const filter = e.currentTarget.getAttribute("data-filter")
+        e.currentTarget.parentElement.querySelector('.active').classList.remove("active")
+        e.currentTarget.classList.add("active")
+        console.log(filter)
+        if(filter === "todo"){
+            this.#listElement.classList.add("hide-completed")
+            this.#listElement.classList.remove("hide-todo")
+        } else if  (filter==="done"){
+            this.#listElement.classList.add("hide-todo")
+            this.#listElement.classList.remove("hide-completed")
+        } else {
+            this.#listElement.classList.remove("hide-todo")
+            this.#listElement.classList.remove("hide-completed")
+
+        }
+    }
 }
 
 class TodoListItem {
@@ -85,6 +110,9 @@ class TodoListItem {
         const li = createElelement("li",{
             class: "todo list-group-item d-flex align-items-center"
         })
+
+        this.#element = li  
+        
         const checkbox = createElelement("input",{
             class: "form-check-input",
             type: "checkbox",
@@ -105,10 +133,12 @@ class TodoListItem {
         li.append(checkbox)
         li.append(label)
         li.append(deleteButton)
+        this.toggle(checkbox)
 
         deleteButton.addEventListener("click",(e)=>this.remove(e))  
+        checkbox.addEventListener("change",e=> this.toggle(e.currentTarget))
 
-        this.#element = li  
+       
     }
 
     /**
@@ -126,5 +156,17 @@ class TodoListItem {
     remove (e) {
         e.preventDefault()
         this.#element.remove()
+    }
+
+    /**
+     * 
+     * @param {HTMLInputElement} checkbox 
+     */
+    toggle (checkbox){
+        if(checkbox.checked){
+            this.#element.classList.add("is-completed")
+        }  else{
+            this.#element.classList.remove("is-completed")
+        }
     }
 }
