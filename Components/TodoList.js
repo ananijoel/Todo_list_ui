@@ -72,9 +72,28 @@ export class TodoList {
             title,
             completed: false
         }
-        const item = new TodoListItem(todo)
-        this.#listElement.prepend(item.element)
-        form.reset()
+
+
+        const options = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'User-Agent': 'insomnia/10.2.0'},
+            body: `{"userId":1,"title":"${title}","completed":false}`
+          };
+          
+          fetch('https://anatide.ulrichanani.com/api/add-todo', options)
+            .then(response => response.json())
+            .then(response => {
+                const item = new TodoListItem(todo)
+                this.#listElement.prepend(item.element)
+                form.reset()
+                console.log(response)
+            })
+            .catch(err => console.error(err));
+
+
+
+        
+        
     }
 
     /**
@@ -135,9 +154,28 @@ class TodoListItem {
         li.append(deleteButton)
         this.toggle(checkbox)
 
-        deleteButton.addEventListener("click",(e)=>this.remove(e))  
-        checkbox.addEventListener("change",e=> this.toggle(e.currentTarget))
+         
+        deleteButton.addEventListener("click",(e)=>{
+            const options = {method: 'DELETE', headers: {'User-Agent': 'insomnia/10.2.0'}};
 
+            fetch(`https://anatide.ulrichanani.com/api/remove-todo/${id}`, options)
+            .then(response => response.json())
+            .then(response => {
+                deleteButton.addEventListener("click",(e)=>this.remove(e)) 
+                console.log(response)})
+            .catch(err => console.error(err));
+        })  
+        
+        
+        checkbox.addEventListener("change",(e)=>{
+            const options = {method: 'PUT', headers: {'User-Agent': 'insomnia/10.2.0'}};
+            fetch(`https://anatide.ulrichanani.com/api/check-todo/${id}`, options)
+            .then(response => response.json())
+            .then(response =>{
+                checkbox.addEventListener("change",e=> this.toggle(e.currentTarget))
+                console.log(response)})
+            .catch(err => console.error(err));
+        })
        
     }
 
@@ -156,6 +194,7 @@ class TodoListItem {
     remove (e) {
         e.preventDefault()
         this.#element.remove()
+        
     }
 
     /**
