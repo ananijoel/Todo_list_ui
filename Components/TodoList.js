@@ -80,7 +80,7 @@ export class TodoList {
             body: `{"userId":1,"title":"${title}","completed":false}`
           };
           
-          fetch('https://anatide.ulrichanani.com/api/add-todo', options)
+          fetch('https://anatide.ulrichanani.com/todo/api/add-todo', options)
             .then(response => response.json())
             .then(response => {
                 const item = new TodoListItem(todo)
